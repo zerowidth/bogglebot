@@ -4,8 +4,18 @@ require 'flexmock'
 include Boggle
 
 # ----- fixtures -----
+#   i e a d r
+#   s z n e d
+#   n r o a c
+#   a u e e s
+#   p a d o o
 def words
-  { 'one' => ['deaden', 'dread', 'snap', 'daen'], 'two' => ['case', 'cased', 'snap', 'dane'] }
+  # 2 players
+  # 8 words total
+  # 1 duplicate
+  # 2 rejected (daen, dane (proper))
+  # 5 words remaining
+  { 'one' => ['deaden', 'dread', 'snap', 'daen', 'read'], 'two' => ['case', 'cased', 'snap', 'dane'] }
 end
 def add_words_to_game game
   words.each {|player, player_words| player_words.each { |word| game.add_word(player, word) } }
@@ -103,7 +113,7 @@ context "A new VerifyingState with words specified" do
     @state.verify_words
     call = @recorder.calls[:verified].first
     call.first.should_not_equal nil
-    call.first[:words].should_equal( {"one"=>["deaden", "dread"], "two"=>["case", "cased"] } )
+    call.first[:words].should_equal( {"one"=>["deaden", "dread", 'read'], "two"=>["case", "cased"] } )
   end
   
   specify "callback should include the duplicates word list" do
@@ -336,7 +346,7 @@ context "A started game" do
       @game.add_observer mock, :verified
       @game.times_up(words())
     end
-    @arg.should_equal :total => 5, :rejected => 2, :duplicates => {'snap' => %w{one two}}
+    @arg.should_equal :total => 8, :rejected => 2, :duplicates => {'snap' => %w{one two}}
   end
   
   specify "should be in nil state after times_up callback with 'good' word list" do
@@ -450,7 +460,7 @@ context "A running game with words added (two of which require votes)" do
     end
     #{ 'one' => ['deaden', 'dread', 'snap', 'daen'], 'two' => ['case', 'cased', 'snap', 'dane'] }
     @args.first.should_equal [
-      ["one", 6, ["daen", "deaden", "dread"], 4], 
+      ["one", 7, ["daen", "deaden", "dread", "read"], 5], 
       ["two", 3, ["case", "cased"], 4] 
     ]
   end
