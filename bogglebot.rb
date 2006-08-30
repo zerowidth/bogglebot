@@ -124,7 +124,6 @@ class BoggleBot < IRC::Plugin
     
     # print out the duplicates
     return if info[:duplicates].empty?
-    @client.channel_message(@game_channel, 'The following words were found by multiple players:')
     info[:duplicates].each_slice(3) do |slice|
       msg = []
       slice.each do |word, players|
@@ -232,9 +231,9 @@ class BoggleBot < IRC::Plugin
     if info[:duplicates].size == 0
       str += "and no duplicates were removed"
     elsif info[:duplicates].size == 1
-      str += "and 1 duplicate was removed"
+      str += "and 1 duplicate was removed:"
     else
-      str += "and #{info[:duplicates].size} duplicates were removed"
+      str += "and #{info[:duplicates].size} duplicates were removed:"
     end
     
     @client.channel_message(@game_channel, str)

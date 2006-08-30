@@ -245,15 +245,14 @@ context "A BoggleBot with a started game" do
   specify "should list out totals words and duplicate words with the :verified callback, with truncated nicks" do
   	@bot.verified :total => 4, :rejected => 2, 
   	  :duplicates => { 'snap'=> %w{one two}, 'someword' => %w{long_nick, other_long_nick}  }
-    @args.should_equal [ 'Out of 4 words found, 2 were rejected and 2 duplicates were removed',
-      'The following words were found by multiple players:', 
+    @args.should_equal [ 'Out of 4 words found, 2 were rejected and 2 duplicates were removed:',
       "\002someword\002 (long, othe), \002snap\002 (one, two)"
     ]
   end
   
   specify "should include proper pluralization for summary -- 1 was, 2 were, etc." do
     @bot.verified :total => 2, :rejected => 1, :duplicates => {'foo'=>%w{bar baz}}
-    @args.first.should_equal 'Out of 2 words found, 1 was rejected and 1 duplicate was removed'
+    @args.first.should_equal 'Out of 2 words found, 1 was rejected and 1 duplicate was removed:'
   end
   
   specify "should also properly pluralize if 0 rejected or duplicate words were found" do
