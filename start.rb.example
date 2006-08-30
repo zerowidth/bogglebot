@@ -1,0 +1,32 @@
+#!/usr/bin/env ruby
+
+$:.unshift File.expand_path(File.dirname(__FILE__) + "/lib")
+require 'bogglebot'
+require 'irc/client'
+
+LOG_PATH = 'log/boggle.log'
+
+IRC::Client.logger = Logger.new(LOG_PATH, 'weekly')
+
+c = IRC::Client.new
+c.merge_config({
+  :host => 'server.com', 
+  :user => 'bogglebot', 
+  :realname => 'bogglebot irc library', 
+  :nick => 'BoggleBot',
+  :game_channel => '#boggle',
+  :operuser => 'operuser',
+  :operpass => 'operpass',
+  :game_timeout => 600,
+})
+c.start
+
+%w{INT HUP}.each do |signal|
+  trap(signal) { c.quit('killed by console')}
+end
+
+$0 = 'bogglebot'
+
+puts "starting bogglebot, logging to #{LOG_PATH}. ctrl+c to quit."
+
+c.wait_for_quit
