@@ -118,10 +118,14 @@ class BoggleBot < IRC::Plugin
     @client.channel_message('#boggle', "\002\0034Time's Up!")
   end
   
-  def verified(duplicates)
-    return unless duplicates && duplicates.size > 0
+  def verified(info)
+    # print out summary of the game
+    word_summary(info)    
+    
+    # print out the duplicates
+    return if info[:duplicates].empty?
     @client.channel_message(@game_channel, 'The following words were found by multiple players:')
-    duplicates.each_slice(3) do |slice|
+    info[:duplicates].each_slice(3) do |slice|
       msg = []
       slice.each do |word, players|
         trunc = players.map {|p| p[0..3]}
@@ -204,6 +208,37 @@ class BoggleBot < IRC::Plugin
         @client.channel_message(@game_channel, out)
       end
     end if @game.board
+  end
+  
+  def word_summary(info)
+    # info is hash of :total (count), :rejected (count), and :duplicates (hash)
+    if info[:total] == 0
+      @client.channel_message(@game_channel, "No words were found!")
+      return
+    elsif info[:total] == 1
+      str = "Out of 1 word found, "
+    else
+      str = "Out of #{info[:total]} words found, "
+    end
+    
+    if info[:rejected] == 0
+      str += "none were rejected "
+    elsif info[:rejected] == 1
+      str += "1 was rejected "
+    else
+       str += "#{info[:rejected]} were rejected "
+    end
+    
+    if info[:duplicates].size == 0
+      str += "and no duplicates were removed"
+    elsif info[:duplicates].size == 1
+      str += "and 1 duplicate was removed"
+    else
+      str += "and #{info[:duplicates].size} duplicates were removed"
+    end
+    
+    @client.channel_message(@game_channel, str)
+    
   end
   
 end

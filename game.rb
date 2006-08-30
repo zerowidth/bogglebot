@@ -87,8 +87,8 @@ module Boggle
       @words = wordlist[:words]
       @duplicates = wordlist[:duplicates]
       @rejected = wordlist[:rejected]
-      ######
-      notify :verified, :total@duplicates
+      total = @words.size + @duplicates.size + @rejected.size
+      notify :verified, :total => total, :rejected => @rejected.size, :duplicates => @duplicates
       if @rejected && @rejected.size > 0
         @pending_votes = @rejected
         next_vote

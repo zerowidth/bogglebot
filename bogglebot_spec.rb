@@ -242,16 +242,34 @@ context "A BoggleBot with a started game" do
     @bot.times_up
   end
   
-  specify "should list out duplicate words with the :verified callback, with truncated nicks" do
-  	@bot.verified({ 'snap'=> %w{one two}, 'someword' => %w{long_nick, other_long_nick}  })
-    @args.should_equal [ 'The following words were found by multiple players:', 
+  specify "should list out totals words and duplicate words with the :verified callback, with truncated nicks" do
+  	@bot.verified :total => 4, :rejected => 2, 
+  	  :duplicates => { 'snap'=> %w{one two}, 'someword' => %w{long_nick, other_long_nick}  }
+    @args.should_equal [ 'Out of 4 words found, 2 were rejected and 2 duplicates were removed',
+      'The following words were found by multiple players:', 
       "\002someword\002 (long, othe), \002snap\002 (one, two)"
     ]
   end
   
+  specify "should include proper pluralization for summary -- 1 was, 2 were, etc." do
+    @bot.verified :total => 2, :rejected => 1, :duplicates => {'foo'=>%w{bar baz}}
+    @args.first.should_equal 'Out of 2 words found, 1 was rejected and 1 duplicate was removed'
+  end
+  
+  specify "should also properly pluralize if 0 rejected or duplicate words were found" do
+    @bot.verified :total => 1, :rejected => 0, :duplicates => {}
+    @args.first.should_equal 'Out of 1 word found, none were rejected and no duplicates were removed'
+  end
+  
+  specify "should say so if no words were found at all" do
+    @bot.verified :total => 0, :rejected => 0, :duplicates => {}
+    @args.first.should_equal 'No words were found!'
+  end
+  
   specify "should not list out duplicates if no duplicates were found" do
-    @client.should_receive(:channel_message).never
-    @bot.verified []
+    # @client.should_receive(:channel_message).never # doesn't work, overruled by previous arg
+    @bot.verified :total => 0, :duplicates => {}, :rejected => 0
+    @args.size.should_equal 1 # only one channel message should be sent, the summary
   end
   
   specify "should print out 'voting' header for first vote, as well as the vote (:vote_required callback)" do

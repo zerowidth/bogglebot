@@ -329,13 +329,14 @@ context "A started game" do
     @game.state.words['one'].should_include 'dread'
   end
   
-  specify "should verify words and trigger :verified callback with duplicates and totals word count after receiving times_up callback" do
+  specify "should verify words and trigger :verified callback with duplicates, rejected count, and total word count"+
+  " after receiving times_up callback" do
     FlexMock.use('mock') do |mock|
       mock.should_receive(:verified).once.and_return { |arg| @arg = arg }  
       @game.add_observer mock, :verified
       @game.times_up(words())
     end
-    @arg.should_equal :total => 5, :duplicates => {'snap' => %w{one two}}
+    @arg.should_equal :total => 5, :rejected => 2, :duplicates => {'snap' => %w{one two}}
   end
   
   specify "should be in nil state after times_up callback with 'good' word list" do
