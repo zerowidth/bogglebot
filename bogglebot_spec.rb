@@ -83,7 +83,7 @@ context "A new BoggleBot instance" do
     @args = []
     @client.should_receive(:send_raw).with(String).and_return { |arg| @args << arg }
     @bot.registered_with_server
-    @args.should_equal [
+    @args.should == [
       'JOIN #boggle',
       "OPER operuser operpass", 
       "MODE BoggleBot +F"
@@ -100,8 +100,8 @@ context "A new BoggleBot instance" do
     @bot.game.should_not_be_running
     t.join
     @bot.game.should_be_running
-    @args.size.should_equal 6
-    @args.first.should_equal "\002Starting new game in #{SPEC_CONFIG[:start_wait]} seconds!\002"
+    @args.size.should == 6
+    @args.first.should == "\002Starting new game in #{SPEC_CONFIG[:start_wait]} seconds!\002"
     @args[1..5].each do |message|
       message.should_satisfy do |msg|
         msg =~ /\002(\w\w|\w\s){5}\002/
@@ -132,7 +132,7 @@ context "A new BoggleBot instance" do
     # end
     @bot.channel_message *message(:start) # waits longer than the timers, so timers should trigger
     sleep(0.1)
-    @args.should_equal [
+    @args.should == [
       'warning timeout 1',
       'warning timeout 2',
       'warning timeout 3'
@@ -245,36 +245,36 @@ context "A BoggleBot with a started game" do
   specify "should list out totals words and duplicate words with the :verified callback, with truncated nicks" do
   	@bot.verified :total => 4, :rejected => 2, 
   	  :duplicates => { 'snap'=> %w{one two}, 'someword' => %w{long_nick, other_long_nick}  }
-    @args.should_equal [ 'Out of 4 words found, 2 were rejected and 2 duplicates were removed:',
+    @args.should == [ 'Out of 4 words found, 2 were rejected and 2 duplicates were removed:',
       "\002someword\002 (long, othe), \002snap\002 (one, two)"
     ]
   end
   
   specify "should include proper pluralization for summary -- 1 was, 2 were, etc." do
     @bot.verified :total => 2, :rejected => 1, :duplicates => {'foo'=>%w{bar baz}}
-    @args.first.should_equal 'Out of 2 words found, 1 was rejected and 1 duplicate was removed:'
+    @args.first.should == 'Out of 2 words found, 1 was rejected and 1 duplicate was removed:'
   end
   
   specify "should also properly pluralize if 0 rejected or duplicate words were found" do
     @bot.verified :total => 1, :rejected => 0, :duplicates => {}
-    @args.first.should_equal 'Out of 1 word found, none were rejected and no duplicates were removed'
+    @args.first.should == 'Out of 1 word found, none were rejected and no duplicates were removed'
   end
   
   specify "should say so if no words were found at all" do
     @bot.verified :total => 0, :rejected => 0, :duplicates => {}
-    @args.first.should_equal 'No words were found!'
+    @args.first.should == 'No words were found!'
   end
   
   specify "should not list out duplicates if no duplicates were found" do
     # @client.should_receive(:channel_message).never # doesn't work, overruled by previous arg
     @bot.verified :total => 0, :duplicates => {}, :rejected => 0
-    @args.size.should_equal 1 # only one channel message should be sent, the summary
+    @args.size.should == 1 # only one channel message should be sent, the summary
   end
   
   specify "should print out 'voting' header for first vote, as well as the vote (:vote_required callback)" do
   	@bot.vote_required('word', 'player', 'rejected by aspell')
   	@bot.vote_required('second', 'player', 'rejected by aspell, proper noun?')
-    @args.should_equal [ "\0039voting time!\003 to vote for a word, type 'v<ote> <word> <y|yes|n|no>." + 
+    @args.should == [ "\0039voting time!\003 to vote for a word, type 'v<ote> <word> <y|yes|n|no>." + 
       " >50% vote required!", 
       "\0039vote!\003 player: \002word\002 (rejected by aspell)",
       "\0039vote!\003 player: \002second\002 (rejected by aspell, proper noun?)"
@@ -285,7 +285,7 @@ context "A BoggleBot with a started game" do
     @bot.game_over [["one", 6, ["daen", "deaden", "dread"], 4], 
       ["two", 3, ["case", "cased"], 4],
       ["three", 0, [], 1]]
-    @args.should_equal [ "\002GAME OVER\002", 
+    @args.should == [ "\002GAME OVER\002", 
       "one: 6 (\002daen\002, \002deaden\002, \002dread\002) (3/4)",
       "two: 3 (\002case\002, \002cased\002) (2/4)",
       "three: 0 (\002no words\002) (0/1)",
@@ -295,13 +295,13 @@ context "A BoggleBot with a started game" do
   
   specify "should print out 'game over' without scores if no words were entered" do
     @bot.game_over []
-    @args.should_equal [ "\002GAME OVER\002" ]
+    @args.should == [ "\002GAME OVER\002" ]
   end
   
   specify "should print out 'game over' with tie if there's a tie" do
     @bot.game_over [['one', 1, ['word'], 1], ['two', 1, ['word'], 1]]
-    @args.first.should_equal "\002GAME OVER\002"
-    @args.last.should_equal "\002\0038TIE: one, two"
+    @args.first.should == "\002GAME OVER\002"
+    @args.last.should == "\002\0038TIE: one, two"
   end
   
   specify "should cancel game if stuck in vote past specified time limit" do

@@ -61,19 +61,19 @@ context "A new FindingState" do
   
   specify "should handle add_words delegation by adding player words to internal word list" do
     @state.add_word('one', 'deaden').should_be nil
-    @state.words.should_equal( {'one' => ['deaden']} )
+    @state.words.should ==( {'one' => ['deaden']} )
   end
   
   specify "should return error when trying to add a word not on the board" do
-    @state.add_word('one', 'deep').should_equal 'not on the board'
+    @state.add_word('one', 'deep').should == 'not on the board'
   end
   
   specify "should return error when trying to add an empty word" do
-    @state.add_word('one', '').should_equal 'word too short'
+    @state.add_word('one', '').should == 'word too short'
   end
   
   specify "should return false when trying to add a 3-letter word (too short)" do
-    @state.add_word('one', 'red').should_equal 'word too short'
+    @state.add_word('one', 'red').should == 'word too short'
   end
   
   specify "should trigger :times_up callback with word list after specified time has passed" do
@@ -113,13 +113,13 @@ context "A new VerifyingState with words specified" do
     @state.verify_words
     call = @recorder.calls[:verified].first
     call.first.should_not_equal nil
-    call.first[:words].should_equal( {"one"=>["deaden", "dread", 'read'], "two"=>["case", "cased"] } )
+    call.first[:words].should == ( {"one"=>["deaden", "dread", 'read'], "two"=>["case", "cased"] } )
   end
   
   specify "callback should include the duplicates word list" do
     @state.verify_words
     call = @recorder.calls[:verified].first
-    call.first[:duplicates].should_equal({'snap' => %w{one two}})
+    call.first[:duplicates].should == ({'snap' => %w{one two}})
   end
   
   specify "callback should include the rejected words list" do
@@ -144,16 +144,16 @@ context "A new VotingState with a word and a list of two voters" do
   end
   
   specify "should have a word attribute containing the current word" do
-    @state.word.should_equal 'word'
+    @state.word.should == 'word'
   end
   
   specify "should not have any votes recorded" do
-    @state.votes.should_equal( {} )
+    @state.votes.should == ( {} )
   end
   
   specify "should accept a vote from any of the specified voters" do
     @state.add_vote('one', true)
-    @state.votes.should_equal( {'one' => true} )
+    @state.votes.should ==( {'one' => true} )
   end
   
   specify "should not accept a vote from someone who's not a specified voter" do
@@ -260,14 +260,14 @@ context "A new game" do
       @game.add_observer client, :game_started
       @game.start :board_id => 101
     end
-    @game.board.should_equal %w{
+    @game.board.should == %w{
       i e a d r
       s z n e d
       n r o a c
       a u e e s
       p a d o o
     }
-    @game.board_id.should_equal 101
+    @game.board_id.should == 101
   end
   
   specify "should allow :game_length argument and initialize the finding state with the specified length" do
@@ -281,13 +281,13 @@ context "A new game" do
   end
   
   specify "should return correct scores for given words (private method)" do
-    @game.score(['']).should_equal 0
-    @game.score(['four']).should_equal 1
-    @game.score(['fieve']).should_equal 2
-    @game.score(['sixsix']).should_equal 3
-    @game.score(['xsevenx']).should_equal 5
-    @game.score(['longlong']).should_equal 11
-    @game.score(['four','four']).should_equal 2
+    @game.score(['']).should == 0
+    @game.score(['four']).should == 1
+    @game.score(['fieve']).should == 2
+    @game.score(['sixsix']).should == 3
+    @game.score(['xsevenx']).should == 5
+    @game.score(['longlong']).should == 11
+    @game.score(['four','four']).should == 2
   end
   
 end
@@ -313,7 +313,7 @@ context "A started game" do
   specify "should ignore a second start call" do
     board = @game.board
     @game.start :board_id => 123
-    @game.board.should_equal board
+    @game.board.should == board
   end
   
   specify "should be in the FindingState state" do
@@ -346,7 +346,7 @@ context "A started game" do
       @game.add_observer mock, :verified
       @game.times_up(words())
     end
-    @arg.should_equal :total => 8, :rejected => 2, :duplicates => {'snap' => %w{one two}}
+    @arg.should == {:total => 8, :rejected => 2, :duplicates => {'snap' => %w{one two}}}
   end
   
   specify "should be in nil state after times_up callback with 'good' word list" do
@@ -380,7 +380,7 @@ context "A started game" do
       @game.add_observer mock, :game_over
       @game.state.thread.join
     end
-    @arg.should_equal []
+    @arg.should == []
   end
 
 end
@@ -418,7 +418,7 @@ context "A running game with words added (two of which require votes)" do
       @game.state.thread.join
       @game.vote_complete true
     end
-    @arg.should_equal ['dane', 'two', 'rejected by aspell, proper noun?']
+    @arg.should == ['dane', 'two', 'rejected by aspell, proper noun?']
   end
     
   specify "should add 'daen' to player one's word list after :vote_complete callback with true" do
@@ -441,7 +441,7 @@ context "A running game with words added (two of which require votes)" do
       @game.add_vote('one', true)
       @game.add_vote('two', true)
     end
-    @arg.should_equal ['dane', 'two', 'rejected by aspell, proper noun?']
+    @arg.should == ['dane', 'two', 'rejected by aspell, proper noun?']
   end
     
   specify "should trigger :times_up, :verified, :vote_required (twice), " + 
@@ -459,7 +459,7 @@ context "A running game with words added (two of which require votes)" do
       @game.add_vote('two', false) # dane
     end
     #{ 'one' => ['deaden', 'dread', 'snap', 'daen'], 'two' => ['case', 'cased', 'snap', 'dane'] }
-    @args.first.should_equal [
+    @args.first.should == [
       ["one", 7, ["daen", "deaden", "dread", "read"], 5], 
       ["two", 3, ["case", "cased"], 4] 
     ]

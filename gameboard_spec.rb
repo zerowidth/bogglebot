@@ -25,7 +25,7 @@ context "A new gameboard with specific board id" do
   end
   
   specify "should yield a specific board" do
-    @board.board.should_equal %w{
+    @board.board.should == %w{
       i e a d r
       s z n e d
       n r o a c
@@ -66,19 +66,19 @@ context "The internal implementation of word_to_array" do
     end
   end
   specify "should correctly split 'random'" do
-    @board.word_to_array('random').should_equal %w{r a n d o m}
+    @board.word_to_array('random').should == %w{r a n d o m}
   end
   specify "should correctly split 'quit'" do
-    @board.word_to_array('quit').should_equal %w{qu i t}    
+    @board.word_to_array('quit').should == %w{qu i t}    
   end
   specify "should correctly split 'equestrian'" do
-    @board.word_to_array('equestrian').should_equal %w{e qu e s t r i a n}
+    @board.word_to_array('equestrian').should == %w{e qu e s t r i a n}
   end
   specify "should correctly split 'CaPiTAlIzED' (handles random capitalization)" do
-    @board.word_to_array('CaPiTAlIzED').should_equal %w{c a p i t a l i z e d}
+    @board.word_to_array('CaPiTAlIzED').should == %w{c a p i t a l i z e d}
   end
   specify "should return an empty array for ''" do
-    @board.word_to_array('').should_equal []
+    @board.word_to_array('').should == []
   end  
   
 end
